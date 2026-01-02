@@ -2,11 +2,14 @@
 Universal-SciAgent - Chatbot Mode for AgentKit
 
 This module provides a conversational AI agent for scientific research assistance.
-Supports multi-turn dialogue with memory and streaming responses.
+Uses AgentkitAgentServerApp for proper chatbot interface in AgentKit console.
 """
 import os
 import logging
-from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv(override=True)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,8 +36,10 @@ def _normalize_env_vars():
 # Normalize env vars before imports
 _normalize_env_vars()
 
-# Import VeADK
+# Import AgentKit and VeADK
+from agentkit.apps import AgentkitAgentServerApp
 from veadk import Agent
+from veadk.memory.short_term_memory import ShortTermMemory
 from google.adk.tools import FunctionTool
 
 # Import tools
@@ -49,40 +54,73 @@ from backend.tools.veadk_tools import (
 # =============================================================================
 # System Prompt for Conversational Scientific Research Assistant
 # =============================================================================
-SYSTEM_PROMPT = """你是 Universal-SciAgent，一个专业的科研助手。
+INSTRUCTION = """# 角色
+你是 Universal-SciAgent，一个专业的科研助手，擅长帮助用户进行学术研究。
 
-## 你的能力
-1. **文献检索**: 使用 arxiv_search、semantic_scholar_search、pubmed_search 工具搜索论文
-2. **假设生成**: 基于文献分析，提出创新性研究假设
-3. **实验设计**: 为研究假设设计验证实验方案
-4. **报告撰写**: 撰写科研报告和文献综述
+# 目标
+1. 帮助用户搜索和分析学术论文
+2. 基于文献分析，提出创新性研究假设
+3. 为研究假设设计验证实验方案
+4. 撰写科研报告和文献综述
 
-## 支持的研究领域
+# 技能
+1. 使用 arxiv_search 搜索 arXiv 论文
+2. 使用 semantic_scholar_search 搜索 Semantic Scholar 论文（含引用数据）
+3. 使用 pubmed_search 搜索生物医学文献
+4. 使用 parse_pdf 解析 PDF 文档
+
+# 支持的研究领域
 - 计算机科学 (Computer Science)
 - 生物医学 (Biomedical)
 - 材料科学 (Materials Science)
 - 物理学 (Physics)
 - 化学 (Chemistry)
 
-## 对话风格
-- 友好专业，用中文回答
-- 主动询问用户需求
-- 提供结构化的研究建议
-- 引用具体论文时给出标题和链接
+# 工作流程
+1. 与用户沟通，明确研究需求和兴趣领域
+2. 使用工具搜索相关学术论文
+3. 分析文献，总结研究现状和趋势
+4. 根据用户需求，生成假设、实验方案或报告
 
-## 工具使用
-当用户询问研究主题时，主动使用搜索工具获取最新文献。
-每次搜索限制在 5-10 篇论文，避免信息过载。
+# 约束
+1. 必须使用工具进行信息收集
+2. 每次搜索限制在 5-10 篇论文，避免信息过载
+3. 引用论文时必须给出标题和链接
+4. 用中文回答用户问题
 
-开始对话时，先问候用户并询问他们的研究兴趣。
+# 输出格式
+以清晰、结构化的文本形式输出，包括：
+- 文献综述：按主题分类的论文摘要
+- 假设生成：明确的假设陈述和依据
+- 实验方案：详细的步骤和方法
+- 报告：专业的学术风格
+
+# 示例
+输入："帮我搜索关于大语言模型的最新研究"
+输出：
+我来帮您搜索大语言模型（LLM）的最新研究论文。
+
+[使用 arxiv_search 工具搜索]
+
+根据搜索结果，以下是最新的研究论文：
+
+1. **论文标题1**
+   - 作者：xxx
+   - 摘要：xxx
+   - 链接：https://arxiv.org/abs/xxx
+
+2. **论文标题2**
+   - 作者：xxx
+   - 摘要：xxx
+   - 链接：https://arxiv.org/abs/xxx
+
+您对哪个方向更感兴趣？我可以进一步深入分析。
 """
 
 
 # =============================================================================
-# Define Tools as FunctionTools for the Agent
+# Define Tools
 # =============================================================================
-
-# Wrap tools with FunctionTool
 arxiv_tool = FunctionTool(arxiv_search)
 semantic_scholar_tool = FunctionTool(semantic_scholar_search)
 pubmed_tool = FunctionTool(pubmed_search)
@@ -90,72 +128,42 @@ pdf_tool = FunctionTool(parse_pdf)
 
 
 # =============================================================================
-# Create the Conversational Agent (Module-level for AgentKit)
+# Create Short Term Memory (for conversation history)
 # =============================================================================
+short_term_memory = ShortTermMemory(backend="local")
 
-agent = Agent(
+
+# =============================================================================
+# Create the Agent
+# =============================================================================
+root_agent = Agent(
     name="universal_sciagent",
-    system_prompt=SYSTEM_PROMPT,
+    description="Universal Scientific Research Agent - 科研助手",
+    instruction=INSTRUCTION,
     tools=[
         arxiv_tool,
         semantic_scholar_tool,
         pubmed_tool,
         pdf_tool
-    ]
+    ],
 )
 
-logger.info("Universal-SciAgent (Chatbot Mode) initialized successfully")
-logger.info(f"Agent name: {agent.name}")
+logger.info("Universal-SciAgent initialized successfully")
+logger.info(f"Agent name: {root_agent.name}")
 logger.info(f"Tools: arxiv_search, semantic_scholar_search, pubmed_search, parse_pdf")
 
 
 # =============================================================================
-# Optional: Local testing server
+# Create AgentKit Agent Server App (for Chatbot UI)
 # =============================================================================
+agent_server_app = AgentkitAgentServerApp(
+    agent=root_agent,
+    short_term_memory=short_term_memory
+)
 
+
+# =============================================================================
+# Entry point for AgentKit
+# =============================================================================
 if __name__ == "__main__":
-    import asyncio
-    from veadk import Runner
-    
-    async def chat():
-        """Interactive chat for local testing."""
-        runner = Runner(agent=agent)
-        session_id = "local-test-session"
-        
-        print("\n" + "="*60)
-        print("🔬 Universal-SciAgent 对话模式")
-        print("="*60)
-        print("输入 'quit' 或 'exit' 退出")
-        print("="*60 + "\n")
-        
-        while True:
-            try:
-                user_input = input("👤 You: ").strip()
-                
-                if user_input.lower() in ['quit', 'exit', 'q']:
-                    print("\n👋 再见！祝您研究顺利！")
-                    break
-                
-                if not user_input:
-                    continue
-                
-                print("\n🤖 SciAgent: ", end="", flush=True)
-                
-                # Run agent with streaming
-                response = await runner.run(
-                    messages=user_input,
-                    user_id="local_user",
-                    session_id=session_id
-                )
-                
-                print(response)
-                print()
-                
-            except KeyboardInterrupt:
-                print("\n\n👋 再见！")
-                break
-            except Exception as e:
-                print(f"\n❌ Error: {e}\n")
-    
-    # Run the chat loop
-    asyncio.run(chat())
+    agent_server_app.run(host="0.0.0.0", port=8000)

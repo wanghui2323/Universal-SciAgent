@@ -319,8 +319,19 @@ class MasterAgent(BaseAgent):
             print(f"  {i}. {step.agent_name} - {step.action}")
         print("="*60)
         
-        response = input("\n确认执行? (y/n): ").strip().lower()
-        return response in ["y", "yes", "是", "确认"]
+        # In non-interactive (cloud) environments, auto-confirm
+        import sys
+        if not sys.stdin.isatty():
+            self.logger.info("Non-interactive environment, auto-confirming execution")
+            return True
+        
+        try:
+            response = input("\n确认执行? (y/n): ").strip().lower()
+            return response in ["y", "yes", "是", "确认"]
+        except EOFError:
+            # EOF in non-interactive environment
+            self.logger.info("EOF received, auto-confirming execution")
+            return True
     
     async def _execute_workflow(
         self,
