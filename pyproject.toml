@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "universal-sciagent"
+name = "Universal-SciAgent"
 version = "1.0.0"
 description = "Universal Scientific Research Agent Platform powered by VeADK"
 readme = "README.md"
@@ -70,11 +70,11 @@ viz = [
 all = ["universal-sciagent[dev,notebook,viz]"]
 
 [project.urls]
-Homepage = "https://github.com/YOUR_USERNAME/universal-sciagent"
-Documentation = "https://github.com/YOUR_USERNAME/universal-sciagent#readme"
-Repository = "https://github.com/YOUR_USERNAME/universal-sciagent.git"
-Issues = "https://github.com/YOUR_USERNAME/universal-sciagent/issues"
-Changelog = "https://github.com/YOUR_USERNAME/universal-sciagent/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/YOUR_USERNAME/Universal-SciAgent"
+Documentation = "https://github.com/YOUR_USERNAME/Universal-SciAgent#readme"
+Repository = "https://github.com/YOUR_USERNAME/Universal-SciAgent.git"
+Issues = "https://github.com/YOUR_USERNAME/Universal-SciAgent/issues"
+Changelog = "https://github.com/YOUR_USERNAME/Universal-SciAgent/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["."]
