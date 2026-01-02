@@ -1,0 +1,127 @@
+# ============================================================================
+# Universal-SciAgent Dependencies (Based on VeADK Native Multi-Agent System)
+# ============================================================================
+#
+# This project is built PURELY on VeADK (Volcengine Agent Development Kit).
+# We utilize VeADK's native capabilities:
+# - Multi-Agent System (hierarchical coordination)
+# - Memory Management (short-term + long-term with vector storage)
+# - Tool System (MCP protocol + custom tools)
+# - Workflow Orchestration (DAG-based execution)
+# - Cost Tracking & Observability (CozeLoop, APMPlus, TLS)
+#
+# We do NOT use other agent frameworks like LangChain, LlamaIndex, AutoGen, etc.
+#
+# For more information:
+# - VeADK: https://github.com/volcengine/veadk-python
+# - AgentKit: https://github.com/volcengine/agentkit-sdk-python
+# - Docs: https://volcengine.github.io/veadk-python/
+# ============================================================================
+
+# ============================================================================
+# Core VeADK Framework
+# ============================================================================
+
+# VeADK - current stable version
+# Note: 0.5.0 with full multi-agent features is not yet released
+# Using current stable version, system will use fallback mode for now
+veadk-python>=0.2.27
+
+# AgentKit for deployment to Volcengine VeFaaS platform
+agentkit-sdk-python>=0.2.0
+
+# ============================================================================
+# Additional LLM Providers (Optional Fallback)
+# ============================================================================
+# Only needed if not using Volcengine ARK (豆包) exclusively
+
+openai>=1.12.0  # For OpenAI/GPT models (optional)
+anthropic>=0.18.0  # For Claude models (optional)
+
+# ============================================================================
+# Scientific Literature & APIs
+# ============================================================================
+
+# arXiv API client
+arxiv>=2.1.0
+
+# HTTP clients for API requests
+requests>=2.31.0  # Sync HTTP
+aiohttp>=3.9.0  # Async HTTP for concurrent searches
+
+# ============================================================================
+# Knowledge Base & Vector Database
+# ============================================================================
+# Used by VeADK's long-term memory system
+
+chromadb>=0.4.22,<0.5.0  # Vector database with persistence
+
+# ============================================================================
+# Data Processing & Validation
+# ============================================================================
+
+pandas>=2.1.0,<3.0.0  # Data manipulation and analysis
+numpy>=1.24.0,<2.0.0  # Numerical computing
+pydantic>=2.5.0,<3.0.0  # Data validation and settings
+pydantic-settings>=2.1.0,<3.0.0  # Settings management
+pyyaml>=6.0.1,<7.0.0  # YAML configuration parsing
+
+# ============================================================================
+# PDF Processing
+# ============================================================================
+
+pypdf2>=3.0.0  # PDF parsing (method 1)
+pdfplumber>=0.10.0  # PDF parsing (method 2, more accurate for tables)
+
+# ============================================================================
+# Visualization (Optional)
+# ============================================================================
+# Note: plotly has complex dependencies. Pin specific version to avoid resolution issues.
+
+plotly>=5.18.0,<6.0.0  # Interactive visualizations
+matplotlib>=3.8.0,<4.0.0  # Static plots and charts
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+python-dotenv>=1.0.0  # Load environment variables from .env
+tqdm>=4.66.0  # Progress bars
+tenacity>=8.2.0  # Retry logic with exponential backoff
+
+# ============================================================================
+# Development Tools (Optional)
+# ============================================================================
+
+# Jupyter Notebooks for demos and tutorials
+jupyter>=1.0.0
+ipython>=8.18.0
+ipywidgets>=8.1.0
+
+# Testing framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0  # Async test support
+pytest-cov>=4.1.0  # Coverage reporting
+
+# Code quality tools
+black>=23.0.0  # Code formatting
+flake8>=6.0.0  # Linting
+mypy>=1.7.0  # Static type checking
+
+# ============================================================================
+# Installation Instructions
+# ============================================================================
+#
+# Quick start:
+#   pip install -r requirements.txt
+#
+# Or use uv for faster installation:
+#   uv pip install -r requirements.txt
+#
+# Minimal installation (core only, no viz/jupyter):
+#   pip install -r requirements.minimal.txt
+#
+# Pure VeADK setup (explicitly exclude other frameworks):
+#   pip install -r requirements.veadk.txt
+#
+# ============================================================================

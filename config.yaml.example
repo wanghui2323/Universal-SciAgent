@@ -1,0 +1,17 @@
+# VeADK Configuration Example
+# Reference: https://github.com/volcengine/veadk-python
+# 
+# Copy this file to config.yaml and set your API key
+
+model:
+  agent:
+    provider: openai  # Use 'openai' for Volcengine ARK (豆包)
+    name: doubao-pro-32k  # Model name
+    api_base: https://ark.cn-beijing.volces.com/api/v3/
+    api_key: your_volcengine_ark_api_key_here  # <-- Replace with your actual API key
+
+# Optional: Model parameters
+# temperature: 0.7
+# max_tokens: 4000
+# top_p: 0.95
+

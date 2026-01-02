@@ -1,0 +1,158 @@
+name: universal-sciagent
+version: 1.0.0
+description: Universal Scientific Research Agent Platform - VeADK Native Multi-Agent
+  System
+runtime:
+  python_version: '3.10'
+  memory: 2048
+  timeout: 600
+environment:
+  MODEL_AGENT_NAME: ${MODEL_AGENT_NAME}
+  MODEL_AGENT_API_KEY: ${MODEL_AGENT_API_KEY}
+  MODEL_AGENT_API_BASE: https://ark.cn-beijing.volces.com/api/v3/
+  MODEL_AGENT_PROVIDER: openai
+  CHROMA_PERSIST_DIR: /tmp/chromadb
+  LOG_DIR: /tmp/logs
+  MAX_COST_PER_TASK: '2.0'
+  MAX_PAPERS_PER_SEARCH: '20'
+dependencies:
+- veadk-python>=0.2.28
+- agentkit-sdk-python>=0.2.0
+- arxiv>=2.1.0
+- chromadb>=0.4.22
+- pandas>=2.1.0
+- pydantic>=2.5.0
+- pydantic-settings>=2.2.1
+- pyyaml>=6.0.1
+- pypdf2>=3.0.0
+- requests>=2.31.0
+- aiohttp>=3.9.0
+- python-dotenv>=1.0.0
+- tqdm>=4.66.0
+- tenacity>=8.2.0
+entrypoint:
+  module: backend.deploy.agentkit_handler
+  handler: handler
+endpoints:
+- path: /health
+  method: GET
+  description: Health check endpoint
+- path: /domains
+  method: GET
+  description: List available research domains
+- path: /literature-review
+  method: POST
+  description: Generate literature review
+  parameters:
+  - name: topic
+    type: string
+    required: true
+    description: Research topic
+  - name: domain
+    type: string
+    required: false
+    default: computer_science
+  - name: max_papers
+    type: integer
+    default: 20
+- path: /hypothesis-generation
+  method: POST
+  description: Generate research hypotheses
+  parameters:
+  - name: literature_context
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
+- path: /experiment-design
+  method: POST
+  description: Design experiments for hypothesis validation
+  parameters:
+  - name: hypothesis
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
+- path: /write-report
+  method: POST
+  description: Write research report
+  parameters:
+  - name: research_context
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
+resources:
+  cpu: 2
+  memory: 2048
+  disk: 5120
+scaling:
+  min_instances: 1
+  max_instances: 5
+  target_cpu_utilization: 70
+monitoring:
+  enabled: true
+  log_level: INFO
+  metrics:
+  - request_count
+  - request_duration
+  - error_rate
+  - cost_per_request
+health_check:
+  path: /health
+  interval: 30
+  timeout: 5
+  unhealthy_threshold: 3
+include:
+- backend/
+- config/
+- requirements.txt
+- agent.py
+exclude:
+- notebooks/
+- tests/
+- examples/
+- docs/
+- data/chromadb/*
+- data/logs/*
+- '*.pyc'
+- __pycache__/
+- .git/
+- .env
+- '*.md'
+common:
+  agent_name: keyanagent
+  entry_point: agent.py
+  description: ''
+  language: Python
+  language_version: '3.12'
+  agent_type: Basic App
+  dependencies_file: requirements.txt
+  runtime_envs: {}
+  launch_type: cloud
+launch_types:
+  cloud:
+    region: cn-beijing
+    tos_bucket: agentkit-platform-{{account_id}}
+    tos_prefix: agentkit-builds
+    image_tag: '{{timestamp}}'
+    cr_instance_name: agentkit-platform-{{account_id}}
+    cr_namespace_name: agentkit
+    cr_image_full_url: agentkit-platform-2101086242-cn-beijing.cr.volces.com/agentkit/keyanagent-fw18:20260102214001
+    build_timeout: 3600
+    cp_workspace_name: agentkit-cli-workspace
+    cp_pipeline_name: keyanagent-d3yp8nia
+    cp_pipeline_id: 6fb4964db81746089a6e7b7af8acaa2a
+    runtime_id: r-yecngubv2854ppxtyu95
+    runtime_name: keyanagent-d3yp8nia
+    runtime_role_name: AgentKit-Runtime-Default-ServiceRole-m9mh1ku
+    runtime_auth_type: key_auth
+    runtime_apikey_name: API-KEY-fchp7uzg
+    runtime_apikey: 626zgD3IywScCxXfShq-QQqyxDvqivQkq0CC
+    runtime_jwt_allowed_clients: []
+    runtime_endpoint: https://sd5bsnujdr43upa0e471g.apigateway-cn-beijing.volceapi.com
+docker_build:
+  platform: auto

@@ -1,0 +1,103 @@
+name: "计算机科学"
+description: "涵盖人工智能、机器学习、计算机视觉、自然语言处理等领域"
+
+tools:
+  - arxiv_search
+  - semantic_scholar_search
+  - pdf_parser
+
+keywords:
+  - machine learning
+  - deep learning
+  - neural network
+  - computer vision
+  - natural language processing
+  - nlp
+  - transformer
+  - cnn
+  - rnn
+  - reinforcement learning
+  - algorithm
+  - data structure
+  - optimization
+  - distributed systems
+
+prompts:
+  hypothesis_generation: |
+    你是计算机科学领域的资深研究员，擅长人工智能、机器学习、计算机视觉等方向。
+    
+    请基于提供的文献，生成创新性研究假设。重点关注：
+    - 算法效率优化（时间复杂度、空间复杂度）
+    - 模型架构创新（新的网络结构、注意力机制）
+    - 泛化能力提升（小样本学习、领域适应）
+    - 可解释性增强（可视化、注意力分析）
+    - 跨模态学习（视觉-语言、音频-视觉）
+    - 实际应用场景（工业部署、边缘计算）
+    
+    每个假设必须包含：
+    1. 清晰的假设陈述（一句话）
+    2. 理论依据（引用3-5篇相关文献，说明现有方法的局限性）
+    3. 创新点（与现有研究的差异）
+    4. 初步实验方案（数据集、评估指标、对比方法）
+    5. 预期影响（性能提升、应用价值）
+    
+    强调技术可行性和实验可重复性。
+  
+  experiment_design: |
+    设计计算机科学实验时，请遵循以下流程：
+    
+    1. **数据准备**
+       - 选择合适的基准数据集（CIFAR-10, ImageNet, COCO, etc.）
+       - 数据预处理和增强策略
+       - 训练集/验证集/测试集划分
+    
+    2. **模型实现**
+       - 网络架构定义（使用PyTorch/TensorFlow）
+       - 超参数设置（学习率、batch size、优化器）
+       - 损失函数选择
+    
+    3. **训练流程**
+       - 训练策略（学习率调度、早停、权重初始化）
+       - 计算资源需求（GPU型号、训练时长估计）
+       - 检查点保存和恢复
+    
+    4. **评估方法**
+       - 性能指标（Accuracy, F1, mAP, BLEU, etc.）
+       - 对比基线方法
+       - 消融实验设计
+       - 可视化分析（注意力图、特征可视化）
+    
+    5. **成功标准**
+       - 量化性能提升目标（如准确率提升2%）
+       - 统计显著性检验（t-test, p-value < 0.05）
+       - 计算效率对比（FLOPs, inference time）
+
+methodology_template: |
+  ## 计算机科学标准研究流程
+  
+  ### 1. 文献调研与问题定义
+  - 系统性文献综述
+  - 识别研究空白
+  - 明确研究目标
+  
+  ### 2. 方法设计
+  - 算法/模型架构设计
+  - 理论分析（复杂度、收敛性）
+  - 创新点论证
+  
+  ### 3. 实验验证
+  - 基准数据集选择
+  - 对比实验设计
+  - 消融实验
+  - 统计显著性检验
+  
+  ### 4. 结果分析
+  - 性能对比表格
+  - 可视化分析
+  - 错误分析
+  - 局限性讨论
+  
+  ### 5. 代码开源
+  - GitHub仓库
+  - README文档
+  - 可重现性检查清单
