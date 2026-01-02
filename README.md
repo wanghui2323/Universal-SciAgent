@@ -26,7 +26,7 @@ Universal-SciAgent 是一个**多智能体科研自动化系统**，帮助研究
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/YOUR_USERNAME/Universal-SciAgent.git
+git clone https://github.com/wanghui2323/Universal-SciAgent.git
 cd Universal-SciAgent
 
 # 2. 创建虚拟环境
@@ -220,7 +220,7 @@ curl -X POST http://localhost:8000/invoke \
 
 **Made with ❤️ using VeADK + AgentKit**
 
-[Report Bug](https://github.com/YOUR_USERNAME/Universal-SciAgent/issues) · 
-[Request Feature](https://github.com/YOUR_USERNAME/Universal-SciAgent/issues)
+[Report Bug](https://github.com/wanghui2323/Universal-SciAgent/issues) · 
+[Request Feature](https://github.com/wanghui2323/Universal-SciAgent/issues)
 
 </div>
