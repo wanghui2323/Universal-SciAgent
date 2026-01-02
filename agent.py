@@ -1,15 +1,12 @@
 """
-AgentKit Entry Point for Universal-SciAgent
+Universal-SciAgent - Chatbot Mode for AgentKit
 
-This module provides the HTTP server entry point for AgentKit deployment.
+This module provides a conversational AI agent for scientific research assistance.
+Supports multi-turn dialogue with memory and streaming responses.
 """
 import os
 import logging
-import asyncio
-import json
-from typing import Dict, Any
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import threading
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,182 +33,129 @@ def _normalize_env_vars():
 # Normalize env vars before imports
 _normalize_env_vars()
 
-# Import VeADK and agent system
-try:
-    from veadk import Agent as VeADKAgent
-    VEADK_AVAILABLE = True
-except ImportError:
-    VEADK_AVAILABLE = False
+# Import VeADK
+from veadk import Agent
+from google.adk.tools import FunctionTool
 
-from backend.agents.sci_agent_system import get_sci_agent_system
-
-
-# System prompt
-SYSTEM_PROMPT = """You are Universal-SciAgent, a multi-agent scientific research assistant.
-You help with literature review, hypothesis generation, experiment design, and report writing.
-Supported domains: Computer Science, Materials Science, Biomedical, Physics, Chemistry."""
+# Import tools
+from backend.tools.veadk_tools import (
+    arxiv_search,
+    semantic_scholar_search,
+    pubmed_search,
+    parse_pdf
+)
 
 
-# Initialize VeADK Agent at module level (required for AgentKit)
-if VEADK_AVAILABLE:
-    agent = VeADKAgent(
-        name="universal_sciagent",
-        system_prompt=SYSTEM_PROMPT,
-    )
-    logger.info("VeADK Agent initialized at module level")
-else:
-    agent = None
-    logger.warning("VeADK not available, agent is None")
+# =============================================================================
+# System Prompt for Conversational Scientific Research Assistant
+# =============================================================================
+SYSTEM_PROMPT = """你是 Universal-SciAgent，一个专业的科研助手。
 
-# Global sci_system instance
-sci_system = None
+## 你的能力
+1. **文献检索**: 使用 arxiv_search、semantic_scholar_search、pubmed_search 工具搜索论文
+2. **假设生成**: 基于文献分析，提出创新性研究假设
+3. **实验设计**: 为研究假设设计验证实验方案
+4. **报告撰写**: 撰写科研报告和文献综述
 
+## 支持的研究领域
+- 计算机科学 (Computer Science)
+- 生物医学 (Biomedical)
+- 材料科学 (Materials Science)
+- 物理学 (Physics)
+- 化学 (Chemistry)
 
-def init_agent():
-    """Initialize the agent system."""
-    global sci_system
-    
-    sci_system = get_sci_agent_system()
-    logger.info("Universal-SciAgent initialized successfully")
+## 对话风格
+- 友好专业，用中文回答
+- 主动询问用户需求
+- 提供结构化的研究建议
+- 引用具体论文时给出标题和链接
 
+## 工具使用
+当用户询问研究主题时，主动使用搜索工具获取最新文献。
+每次搜索限制在 5-10 篇论文，避免信息过载。
 
-async def process_request(user_input: str) -> str:
-    """Process a user request."""
-    input_lower = user_input.lower()
-    
-    # Detect domain
-    domain = "computer_science"
-    for d in ["physics", "chemistry", "biomedical", "materials_science"]:
-        if d.replace("_", " ") in input_lower or d in input_lower:
-            domain = d
-            break
-    
-    try:
-        result = await sci_system.literature_review(user_input, domain, max_papers=5)
-        return result.output
-    except Exception as e:
-        logger.exception(f"Error: {e}")
-        if VEADK_AVAILABLE and agent:
-            return agent.run(user_input)
-        return f"Error: {str(e)}"
+开始对话时，先问候用户并询问他们的研究兴趣。
+"""
 
 
-def handle_request(event: Dict[str, Any]) -> Dict[str, Any]:
-    """Handle incoming request."""
-    # Extract input
-    user_input = None
-    if isinstance(event, dict):
-        user_input = (
-            event.get("input") or
-            event.get("query") or
-            event.get("message") or
-            event.get("text") or
-            event.get("prompt") or
-            ""
-        )
-        # Check body
-        body = event.get("body", {})
-        if isinstance(body, dict) and not user_input:
-            user_input = (
-                body.get("input") or
-                body.get("query") or
-                body.get("message") or
-                ""
-            )
-    elif isinstance(event, str):
-        user_input = event
-    
-    if not user_input or not user_input.strip():
-        return {
-            "status": "success",
-            "output": (
-                "Welcome to Universal-SciAgent!\n\n"
-                "I'm a scientific research assistant. Send me a research topic like:\n"
-                "- 'transformer attention mechanism'\n"
-                "- 'CRISPR gene editing'\n"
-                "- 'quantum computing'"
-            )
-        }
-    
-    try:
-        result = asyncio.run(process_request(user_input))
-        return {"status": "success", "output": result}
-    except Exception as e:
-        return {"status": "error", "output": str(e)}
+# =============================================================================
+# Define Tools as FunctionTools for the Agent
+# =============================================================================
+
+# Wrap tools with FunctionTool
+arxiv_tool = FunctionTool(arxiv_search)
+semantic_scholar_tool = FunctionTool(semantic_scholar_search)
+pubmed_tool = FunctionTool(pubmed_search)
+pdf_tool = FunctionTool(parse_pdf)
 
 
-class RequestHandler(BaseHTTPRequestHandler):
-    """HTTP request handler for AgentKit."""
-    
-    def log_message(self, format, *args):
-        logger.info(f"{self.address_string()} - {format % args}")
-    
-    def _send_json_response(self, data: dict, status: int = 200):
-        response = json.dumps(data, ensure_ascii=False)
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", len(response.encode()))
-        self.end_headers()
-        self.wfile.write(response.encode())
-    
-    def do_GET(self):
-        if self.path == "/health" or self.path == "/":
-            self._send_json_response({
-                "status": "ok",
-                "message": "Universal-SciAgent is healthy"
-            })
-        elif self.path == "/domains":
-            domains = sci_system.domain_manager.list_domains() if sci_system else []
-            self._send_json_response({
-                "status": "success",
-                "domains": domains
-            })
-        else:
-            self._send_json_response({"status": "error", "message": "Not found"}, 404)
-    
-    def do_POST(self):
-        content_length = int(self.headers.get("Content-Length", 0))
-        body = {}
-        
-        if content_length > 0:
-            raw_body = self.rfile.read(content_length)
-            try:
-                body = json.loads(raw_body.decode())
-            except json.JSONDecodeError:
-                body = {"input": raw_body.decode()}
-        
-        # Handle /invoke endpoint (AgentKit console)
-        if self.path == "/invoke" or self.path == "/":
-            result = handle_request(body)
-            self._send_json_response(result)
-        elif self.path == "/literature-review":
-            topic = body.get("topic", body.get("input", ""))
-            if topic:
-                result = handle_request({"input": topic})
-            else:
-                result = {"status": "error", "output": "Missing topic"}
-            self._send_json_response(result)
-        else:
-            # Default: treat as invoke
-            result = handle_request(body)
-            self._send_json_response(result)
+# =============================================================================
+# Create the Conversational Agent (Module-level for AgentKit)
+# =============================================================================
+
+agent = Agent(
+    name="universal_sciagent",
+    system_prompt=SYSTEM_PROMPT,
+    tools=[
+        arxiv_tool,
+        semantic_scholar_tool,
+        pubmed_tool,
+        pdf_tool
+    ]
+)
+
+logger.info("Universal-SciAgent (Chatbot Mode) initialized successfully")
+logger.info(f"Agent name: {agent.name}")
+logger.info(f"Tools: arxiv_search, semantic_scholar_search, pubmed_search, parse_pdf")
 
 
-def run_server(port: int = 8000):
-    """Run the HTTP server."""
-    server = HTTPServer(("0.0.0.0", port), RequestHandler)
-    logger.info(f"Starting Universal-SciAgent server on port {port}")
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        logger.info("Server stopped")
-        server.shutdown()
-
+# =============================================================================
+# Optional: Local testing server
+# =============================================================================
 
 if __name__ == "__main__":
-    # Initialize agent
-    init_agent()
+    import asyncio
+    from veadk import Runner
     
-    # Run HTTP server (this will keep running)
-    port = int(os.getenv("PORT", "8000"))
-    run_server(port)
+    async def chat():
+        """Interactive chat for local testing."""
+        runner = Runner(agent=agent)
+        session_id = "local-test-session"
+        
+        print("\n" + "="*60)
+        print("🔬 Universal-SciAgent 对话模式")
+        print("="*60)
+        print("输入 'quit' 或 'exit' 退出")
+        print("="*60 + "\n")
+        
+        while True:
+            try:
+                user_input = input("👤 You: ").strip()
+                
+                if user_input.lower() in ['quit', 'exit', 'q']:
+                    print("\n👋 再见！祝您研究顺利！")
+                    break
+                
+                if not user_input:
+                    continue
+                
+                print("\n🤖 SciAgent: ", end="", flush=True)
+                
+                # Run agent with streaming
+                response = await runner.run(
+                    messages=user_input,
+                    user_id="local_user",
+                    session_id=session_id
+                )
+                
+                print(response)
+                print()
+                
+            except KeyboardInterrupt:
+                print("\n\n👋 再见！")
+                break
+            except Exception as e:
+                print(f"\n❌ Error: {e}\n")
+    
+    # Run the chat loop
+    asyncio.run(chat())
