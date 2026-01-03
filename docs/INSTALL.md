@@ -155,7 +155,66 @@ python3 -c "import pandas; import chromadb; import arxiv; print('✅ 核心依�
 
 ## 常见问题
 
-### Q1: chromadb 安装失败
+### Q1: Anaconda 用户创建虚拟环境报错
+
+**问题**: 使用 `python3 -m venv venv` 报错
+
+**解决**:
+```bash
+# 使用 conda 创建虚拟环境
+conda create -n sciagent python=3.10 -y
+conda activate sciagent
+pip install -r requirements.txt
+```
+
+### Q2: `from typing import override` 报错 ImportError
+
+**问题**: Python 3.10/3.11 中 `typing.override` 不可用
+
+**原因**: `override` 是 Python 3.12 新增的装饰器
+
+**解决方案 A**: 升级到 Python 3.12
+```bash
+conda create -n sciagent python=3.12 -y
+```
+
+**解决方案 B**: 安装 typing_extensions（项目已自动包含）
+```bash
+pip install typing_extensions>=4.5.0
+```
+
+如果问题出现在 agentkit 库内部，需要修改库文件：
+```python
+# 修改 agentkit 库的 agent_server_app.py
+# 将:
+from typing import override
+# 改为:
+try:
+    from typing import override
+except ImportError:
+    from typing_extensions import override
+```
+
+### Q3: API 认证错误 - The API key format is incorrect
+
+**问题**:
+```
+AuthenticationError: litellm.AuthenticationError: OpenAIException - The API key format is incorrect
+```
+
+**原因**: 未配置或配置错误的火山引擎 API 密钥
+
+**解决**:
+1. 确保创建了 `.env` 文件：`cp .env.example .env`
+2. 确保正确填写了以下配置：
+   ```ini
+   MODEL_AGENT_NAME=ep-xxxxxxxxxx-xxxxx   # 端点ID，格式以 ep- 开头
+   MODEL_AGENT_API_KEY=your-actual-api-key
+   MODEL_AGENT_API_BASE=https://ark.cn-beijing.volces.com/api/v3/
+   ```
+3. 如果没有火山引擎账号，请先注册并开通方舟大模型服务
+
+### Q4: chromadb 安装失败
 
 **解决**:
 ```bash
@@ -166,14 +225,14 @@ conda install -c conda-forge chromadb
 pip3 install chromadb==0.4.0
 ```
 
-### Q2: langchain 版本冲突
+### Q5: langchain 版本冲突
 
 **解决**:
 ```bash
 pip3 install --upgrade langchain langchain-core langchain-community
 ```
 
-### Q3: PyPDF2 找不到
+### Q6: PyPDF2 找不到
 
 **解决**:
 ```bash

@@ -1,7 +1,8 @@
-# 🔬 Universal-SciAgent
+# 🔬 Universal-SciAgent v1.0.1
 
 基于火山引擎 VeADK 的多智能体科研助手 | Multi-Agent Scientific Research Assistant powered by VeADK
 
+[![Version](https://img.shields.io/badge/Version-1.0.1-purple.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://python.org)
 [![VeADK](https://img.shields.io/badge/VeADK-0.2.28+-orange.svg)](https://github.com/volcengine/veadk-python)
@@ -29,16 +30,22 @@ Universal-SciAgent 是一个**多智能体科研自动化系统**，帮助研究
 git clone https://github.com/wanghui2323/Universal-SciAgent.git
 cd Universal-SciAgent
 
-# 2. 创建虚拟环境
+# 2. 创建虚拟环境 (二选一)
+
+# 方式 A: 使用 Conda (推荐，尤其是 Anaconda/Miniconda 用户)
+conda create -n sciagent python=3.10 -y
+conda activate sciagent
+
+# 方式 B: 使用 venv (适用于标准 Python 环境)
 python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 3. 安装依赖
 pip install -r requirements.txt
 
-# 4. 配置 API 密钥
+# 4. 配置 API 密钥 (⚠️ 必须完成此步骤)
 cp .env.example .env
-# 编辑 .env，填入火山引擎 ARK API 密钥
+# 编辑 .env，填入火山引擎 ARK API 密钥 (详见下方"获取 API 密钥"章节)
 
 # 5. 运行服务
 python agent.py
@@ -77,9 +84,11 @@ agentkit invoke "帮我搜索关于大语言模型的最新研究"
 ### 环境变量 (.env)
 
 ```ini
-# 火山引擎 ARK API (必填)
-MODEL_AGENT_NAME=your-endpoint-id      # 模型端点 ID
-MODEL_AGENT_API_KEY=your-api-key       # API 密钥
+# ============================================
+# 火山引擎 ARK API (必填 - 项目运行必须配置)
+# ============================================
+MODEL_AGENT_NAME=ep-20240101xxxxx-xxxxx    # 模型端点 ID (格式: ep-开头)
+MODEL_AGENT_API_KEY=xxxxxxxxxxxxxxxxxxxxx   # API 密钥 (从火山引擎控制台获取)
 MODEL_AGENT_API_BASE=https://ark.cn-beijing.volces.com/api/v3/
 MODEL_AGENT_PROVIDER=openai
 
@@ -88,11 +97,37 @@ MODEL_EMBEDDING_NAME=your-embedding-endpoint-id
 MODEL_EMBEDDING_API_KEY=your-api-key
 ```
 
-### 获取 API 密钥
+### ⚠️ 获取 API 密钥（重要）
 
-1. 访问 [火山引擎控制台](https://console.volcengine.com/ark/)
-2. 创建模型端点 (推荐: doubao-pro-32k)
-3. 复制端点 ID 和 API 密钥
+如果不配置 API 密钥，运行时会报错：
+```
+AuthenticationError: The API key format is incorrect
+```
+
+**获取步骤**：
+
+1. **注册/登录火山引擎**
+   - 访问 [火山引擎官网](https://www.volcengine.com/)
+   - 完成实名认证
+
+2. **开通方舟大模型服务**
+   - 进入 [方舟大模型控制台](https://console.volcengine.com/ark/)
+   - 点击「开通服务」
+
+3. **创建模型端点**
+   - 进入「在线推理」→「创建推理接入点」
+   - 选择模型（推荐：`doubao-pro-32k` 或 `doubao-pro-128k`）
+   - 创建完成后获得端点 ID（格式：`ep-20240101xxxxx-xxxxx`）
+
+4. **获取 API Key**
+   - 进入「API Key 管理」
+   - 创建或复制已有的 API Key
+
+5. **配置到 .env 文件**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，填入上述获取的端点 ID 和 API Key
+   ```
 
 ---
 

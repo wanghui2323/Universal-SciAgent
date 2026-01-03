@@ -90,6 +90,14 @@ tqdm>=4.66.0  # Progress bars
 tenacity>=8.2.0  # Retry logic with exponential backoff
 
 # ============================================================================
+# Compatibility (Python 3.10/3.11 support)
+# ============================================================================
+# typing.override is only available in Python 3.12+
+# typing_extensions provides backport for Python 3.10/3.11
+
+typing_extensions>=4.5.0  # Backport of typing features for older Python
+
+# ============================================================================
 # Development Tools (Optional)
 # ============================================================================
 

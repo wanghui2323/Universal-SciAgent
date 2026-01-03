@@ -7,14 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] | 未发布
 
+### Planned | 计划中
+- 待添加...
+
+---
+
+## [1.0.1] - 2026-01-03
+
 ### Added | 新增
-- Project structure optimization for open source release
-- Added `.env.example` template
-- Added GitHub Actions CI/CD workflow
-- Added `CODE_OF_CONDUCT.md`
-- Added `SECURITY.md`
-- Added `pyproject.toml` for modern Python packaging
-- Added unit tests
+- 基于 v1.0.0 创建优化分支
+- 项目结构优化，为开源发布做准备
+- 添加 `.env.example` 模板
+- 添加 GitHub Actions CI/CD 工作流
+- 添加 `CODE_OF_CONDUCT.md`
+- 添加 `SECURITY.md`
+- 添加 `pyproject.toml` 现代 Python 打包配置
+- 添加单元测试
+- 添加 `typing_extensions` 依赖解决 Python 3.10/3.11 兼容性问题
+
+### Changed | 变更
+- 版本号更新至 1.0.1
+- 优化 README 安装说明，添加 Conda 环境创建方式
+- 完善 API 密钥配置说明，增加详细获取步骤
+
+### Fixed | 修复
+- 修复 Anaconda 用户创建虚拟环境的文档问题
+- 解决 `typing.override` 在 Python 3.10/3.11 中的 ImportError 问题
+- 改进 API 认证错误的排查指南
 
 ---
 
@@ -62,5 +81,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/your-org/Universal-SciAgent/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-org/Universal-SciAgent/releases/tag/v1.0.0
+[Unreleased]: https://github.com/wanghui2323/Universal-SciAgent/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/wanghui2323/Universal-SciAgent/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/wanghui2323/Universal-SciAgent/releases/tag/v1.0.0
