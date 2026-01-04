@@ -22,11 +22,11 @@ import asyncio
 import arxiv
 import requests
 import aiohttp
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import pdfplumber
 from io import BytesIO
 
-# VeADK/Google ADK Tool Support
+# Google ADK Tool Support (VeADK uses google.adk internally)
 from google.adk.tools import FunctionTool
 
 from ..core.config import settings

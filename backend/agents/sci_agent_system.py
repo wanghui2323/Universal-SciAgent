@@ -27,7 +27,7 @@ from veadk.agents.parallel_agent import ParallelAgent
 from veadk.memory.short_term_memory import ShortTermMemory
 from veadk.memory.long_term_memory import LongTermMemory
 
-# Google ADK Tools (used by VeADK)
+# Google ADK Tools (VeADK uses google.adk internally)
 from google.adk.tools import FunctionTool
 
 from ..core.models import Task, AgentOutput

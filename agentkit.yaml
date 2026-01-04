@@ -1,16 +1,11 @@
-# Universal-SciAgent AgentKit Configuration
-# This file configures the deployment to Volcengine AgentKit platform
-
 name: universal-sciagent
 version: 1.0.0
-description: Universal Scientific Research Agent Platform - VeADK Native Multi-Agent System
-
+description: Universal Scientific Research Agent Platform - VeADK Native Multi-Agent
+  System
 runtime:
   python_version: '3.10'
   memory: 2048
   timeout: 600
-
-# Environment variables (use placeholders, set actual values via agentkit config)
 environment:
   MODEL_AGENT_NAME: ${MODEL_AGENT_NAME}
   MODEL_AGENT_API_KEY: ${MODEL_AGENT_API_KEY}
@@ -20,138 +15,125 @@ environment:
   LOG_DIR: /tmp/logs
   MAX_COST_PER_TASK: '2.0'
   MAX_PAPERS_PER_SEARCH: '20'
-
 dependencies:
-  - veadk-python>=0.2.28
-  - agentkit-sdk-python>=0.2.0
-  - arxiv>=2.1.0
-  - chromadb>=0.4.22
-  - pandas>=2.1.0
-  - pydantic>=2.5.0
-  - pydantic-settings>=2.2.1
-  - pyyaml>=6.0.1
-  - pypdf2>=3.0.0
-  - requests>=2.31.0
-  - aiohttp>=3.9.0
-  - python-dotenv>=1.0.0
-  - tqdm>=4.66.0
-  - tenacity>=8.2.0
-
+- veadk-python>=0.2.28
+- agentkit-sdk-python>=0.2.0
+- arxiv>=2.1.0
+- chromadb>=0.4.22
+- pandas>=2.1.0
+- pydantic>=2.5.0
+- pydantic-settings>=2.2.1
+- pyyaml>=6.0.1
+- pypdf2>=3.0.0
+- requests>=2.31.0
+- aiohttp>=3.9.0
+- python-dotenv>=1.0.0
+- tqdm>=4.66.0
+- tenacity>=8.2.0
 entrypoint:
   module: backend.deploy.agentkit_handler
   handler: handler
-
 endpoints:
-  - path: /health
-    method: GET
-    description: Health check endpoint
-  - path: /domains
-    method: GET
-    description: List available research domains
-  - path: /literature-review
-    method: POST
-    description: Generate literature review
-    parameters:
-      - name: topic
-        type: string
-        required: true
-        description: Research topic
-      - name: domain
-        type: string
-        required: false
-        default: computer_science
-      - name: max_papers
-        type: integer
-        default: 20
-  - path: /hypothesis-generation
-    method: POST
-    description: Generate research hypotheses
-    parameters:
-      - name: literature_context
-        type: string
-        required: true
-      - name: domain
-        type: string
-        default: computer_science
-  - path: /experiment-design
-    method: POST
-    description: Design experiments for hypothesis validation
-    parameters:
-      - name: hypothesis
-        type: string
-        required: true
-      - name: domain
-        type: string
-        default: computer_science
-  - path: /write-report
-    method: POST
-    description: Write research report
-    parameters:
-      - name: research_context
-        type: string
-        required: true
-      - name: domain
-        type: string
-        default: computer_science
-
+- path: /health
+  method: GET
+  description: Health check endpoint
+- path: /domains
+  method: GET
+  description: List available research domains
+- path: /literature-review
+  method: POST
+  description: Generate literature review
+  parameters:
+  - name: topic
+    type: string
+    required: true
+    description: Research topic
+  - name: domain
+    type: string
+    required: false
+    default: computer_science
+  - name: max_papers
+    type: integer
+    default: 20
+- path: /hypothesis-generation
+  method: POST
+  description: Generate research hypotheses
+  parameters:
+  - name: literature_context
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
+- path: /experiment-design
+  method: POST
+  description: Design experiments for hypothesis validation
+  parameters:
+  - name: hypothesis
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
+- path: /write-report
+  method: POST
+  description: Write research report
+  parameters:
+  - name: research_context
+    type: string
+    required: true
+  - name: domain
+    type: string
+    default: computer_science
 resources:
   cpu: 2
   memory: 2048
   disk: 5120
-
 scaling:
   min_instances: 1
   max_instances: 5
   target_cpu_utilization: 70
-
 monitoring:
   enabled: true
   log_level: INFO
   metrics:
-    - request_count
-    - request_duration
-    - error_rate
-    - cost_per_request
-
+  - request_count
+  - request_duration
+  - error_rate
+  - cost_per_request
 health_check:
   path: /health
   interval: 30
   timeout: 5
   unhealthy_threshold: 3
-
 include:
-  - backend/
-  - config/
-  - requirements.txt
-  - agent.py
-  - config.yaml
-
+- backend/
+- config/
+- requirements.txt
+- agent.py
+- config.yaml
 exclude:
-  - notebooks/
-  - tests/
-  - examples/
-  - docs/
-  - data/chromadb/*
-  - data/logs/*
-  - '*.pyc'
-  - __pycache__/
-  - .git/
-  - .env
-  - '*.md'
-
-# AgentKit CLI configuration (auto-generated on first deploy)
-# Run `agentkit init` to initialize, then `agentkit launch` to deploy
+- notebooks/
+- tests/
+- examples/
+- docs/
+- data/chromadb/*
+- data/logs/*
+- '*.pyc'
+- __pycache__/
+- .git/
+- .env
+- '*.md'
 common:
   agent_name: universal_sciagent
   entry_point: agent.py
-  description: 'Universal Scientific Research Agent - Chatbot Mode'
+  description: Universal Scientific Research Agent - Chatbot Mode
   language: Python
   language_version: '3.12'
   agent_type: Basic App
   dependencies_file: requirements.txt
-  runtime_envs: {}  # Set via: agentkit config --runtime_envs "KEY=value"
+  runtime_envs: {}
   launch_type: cloud
-
 launch_types:
   cloud:
     region: cn-beijing
@@ -160,7 +142,18 @@ launch_types:
     image_tag: '{{timestamp}}'
     cr_instance_name: agentkit-platform-{{account_id}}
     cr_namespace_name: agentkit
+    cr_image_full_url: agentkit-platform-2101086242-cn-beijing.cr.volces.com/agentkit/universal_sciagent-coeh:20260104094020
     build_timeout: 3600
-
+    cp_workspace_name: agentkit-cli-workspace
+    cp_pipeline_name: universal_sciagent-84fe60wx
+    cp_pipeline_id: 39ecd353a4ef4f0f88d3f3bac4a07818
+    runtime_id: r-yecrdhzj0go2eybtms3v
+    runtime_name: universal_sciagent-84fe60wx
+    runtime_role_name: AgentKit-Runtime-Default-ServiceRole-97yatqq
+    runtime_auth_type: key_auth
+    runtime_apikey_name: API-KEY-cm1e9wbg
+    runtime_apikey: o8oXou3nLc4wBI63T6brsV23NTynAQPRENjw
+    runtime_jwt_allowed_clients: []
+    runtime_endpoint: https://sd5csdrjdr43upa0e8o5g.apigateway-cn-beijing.volceapi.com
 docker_build:
   platform: auto

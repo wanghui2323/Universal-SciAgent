@@ -1,8 +1,8 @@
-# 🔬 Universal-SciAgent v1.0.1
+# 🔬 Universal-SciAgent v1.0.2
 
 基于火山引擎 VeADK 的多智能体科研助手 | Multi-Agent Scientific Research Assistant powered by VeADK
 
-[![Version](https://img.shields.io/badge/Version-1.0.1-purple.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.0.2-purple.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://python.org)
 [![VeADK](https://img.shields.io/badge/VeADK-0.2.28+-orange.svg)](https://github.com/volcengine/veadk-python)
@@ -23,57 +23,78 @@ Universal-SciAgent 是一个**多智能体科研自动化系统**，帮助研究
 
 ## 🚀 快速开始
 
-### 方式一：本地运行
+### 方式一：本地运行（5 步完成）
 
+#### Step 1: 克隆项目
 ```bash
-# 1. 克隆项目
 git clone https://github.com/wanghui2323/Universal-SciAgent.git
 cd Universal-SciAgent
+```
 
-# 2. 创建虚拟环境 (二选一)
-
-# 方式 A: 使用 Conda (推荐，尤其是 Anaconda/Miniconda 用户)
-conda create -n sciagent python=3.10 -y
-conda activate sciagent
-
-# 方式 B: 使用 venv (适用于标准 Python 环境)
+#### Step 2: 创建虚拟环境
+```bash
 python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
+```
 
-# 3. 安装依赖
-pip install -r requirements.txt
+#### Step 3: 安装依赖
+```bash
+# 推荐使用国内镜像（避免 SSL 问题）
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn
+```
 
-# 4. 配置 API 密钥 (⚠️ 必须完成此步骤)
+#### Step 4: 配置 API 密钥
+```bash
 cp .env.example .env
-# 编辑 .env，填入火山引擎 ARK API 密钥 (详见下方"获取 API 密钥"章节)
+nano .env  # 或使用其他编辑器打开
+```
 
-# 5. 运行服务
+在 `.env` 中填入（必填）：
+```ini
+MODEL_AGENT_NAME=ep-20240101xxxxx-xxxxx    # 从火山方舟获取
+MODEL_AGENT_API_KEY=your_api_key_here       # 从火山方舟获取
+```
+
+> 📍 获取地址：https://console.volcengine.com/ark/
+
+#### Step 5: 启动服务
+```bash
 python agent.py
 ```
+
+服务启动后访问 `http://localhost:8000` 即可使用。
+
+---
 
 ### 方式二：Jupyter Notebook
 
 ```bash
+# 完成 Step 1-4 后
+pip install jupyter
 jupyter notebook notebooks/demo.ipynb
 ```
 
-### 方式三：部署到 AgentKit
+---
 
+### 方式三：部署到 AgentKit 云端
+
+#### Step 1: 准备凭证
+从 [火山引擎 IAM](https://console.volcengine.com/iam/keymanage/) 获取 Access Key
+
+#### Step 2: 配置认证
 ```bash
-# 1. 安装 AgentKit CLI
-pip install agentkit-sdk-python
+export VOLC_ACCESSKEY="您的Access_Key"
+export VOLC_SECRETKEY="您的Secret_Key"
+```
 
-# 2. 初始化项目
-agentkit init --from-agent agent.py --agent-var root_agent
-
-# 3. 配置环境变量
-agentkit config --runtime_envs "MODEL_AGENT_NAME=your-endpoint-id"
-agentkit config --runtime_envs "MODEL_AGENT_API_KEY=your-api-key"
-
-# 4. 部署
+#### Step 3: 初始化并部署
+```bash
+agentkit init
 agentkit launch
+```
 
-# 5. 测试
+#### Step 4: 测试
+```bash
 agentkit invoke "帮我搜索关于大语言模型的最新研究"
 ```
 
@@ -83,51 +104,45 @@ agentkit invoke "帮我搜索关于大语言模型的最新研究"
 
 ### 环境变量 (.env)
 
+| 配置项 | 必填 | 说明 | 获取地址 |
+|--------|------|------|----------|
+| `MODEL_AGENT_NAME` | ✅ | 模型端点 ID (ep-xxx) | [火山方舟](https://console.volcengine.com/ark/) |
+| `MODEL_AGENT_API_KEY` | ✅ | API 密钥 | [火山方舟](https://console.volcengine.com/ark/) |
+| `VOLC_ACCESSKEY` | 部署时 | Access Key | [火山 IAM](https://console.volcengine.com/iam/keymanage/) |
+| `VOLC_SECRETKEY` | 部署时 | Secret Key | [火山 IAM](https://console.volcengine.com/iam/keymanage/) |
+| `SEMANTIC_SCHOLAR_API_KEY` | 可选 | 减少 API 限流 | [Semantic Scholar](https://www.semanticscholar.org/product/api) |
+
+### 完整 .env 示例
+
 ```ini
-# ============================================
-# 火山引擎 ARK API (必填 - 项目运行必须配置)
-# ============================================
-MODEL_AGENT_NAME=ep-20240101xxxxx-xxxxx    # 模型端点 ID (格式: ep-开头)
-MODEL_AGENT_API_KEY=xxxxxxxxxxxxxxxxxxxxx   # API 密钥 (从火山引擎控制台获取)
+# 必填 - 模型配置
+MODEL_AGENT_NAME=ep-20240101xxxxx-xxxxx
+MODEL_AGENT_API_KEY=your_api_key_here
 MODEL_AGENT_API_BASE=https://ark.cn-beijing.volces.com/api/v3/
 MODEL_AGENT_PROVIDER=openai
 
-# Embedding 模型 (可选，用于长期记忆)
-MODEL_EMBEDDING_NAME=your-embedding-endpoint-id
-MODEL_EMBEDDING_API_KEY=your-api-key
+# 可选 - AgentKit 部署
+VOLC_ACCESSKEY=your_access_key
+VOLC_SECRETKEY=your_secret_key
 ```
 
-### ⚠️ 获取 API 密钥（重要）
+### 🔑 获取 API 密钥
 
-如果不配置 API 密钥，运行时会报错：
-```
-AuthenticationError: The API key format is incorrect
-```
+1. 访问 [火山方舟控制台](https://console.volcengine.com/ark/)
+2. 开通服务 → 创建推理接入点 → 获取端点 ID
+3. 进入「API Key 管理」→ 创建或复制 API Key
+4. 填入 `.env` 文件
 
-**获取步骤**：
+---
 
-1. **注册/登录火山引擎**
-   - 访问 [火山引擎官网](https://www.volcengine.com/)
-   - 完成实名认证
+## 🔐 常见问题
 
-2. **开通方舟大模型服务**
-   - 进入 [方舟大模型控制台](https://console.volcengine.com/ark/)
-   - 点击「开通服务」
-
-3. **创建模型端点**
-   - 进入「在线推理」→「创建推理接入点」
-   - 选择模型（推荐：`doubao-pro-32k` 或 `doubao-pro-128k`）
-   - 创建完成后获得端点 ID（格式：`ep-20240101xxxxx-xxxxx`）
-
-4. **获取 API Key**
-   - 进入「API Key 管理」
-   - 创建或复制已有的 API Key
-
-5. **配置到 .env 文件**
-   ```bash
-   cp .env.example .env
-   # 编辑 .env 文件，填入上述获取的端点 ID 和 API Key
-   ```
+| 问题 | 错误信息 | 解决方案 |
+|------|----------|----------|
+| SSL 证书错误 | `SSLCertVerificationError` | 使用国内镜像安装：`pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn` |
+| API 限流 | `Semantic Scholar API error: 429` | 等待几分钟后重试，或配置 `SEMANTIC_SCHOLAR_API_KEY` |
+| 模块未找到 | `No module named 'xxx'` | 确认虚拟环境已激活，重新安装依赖 |
+| API Key 错误 | `AuthenticationError` | 检查 `.env` 中的 `MODEL_AGENT_API_KEY` 是否正确 |
 
 ---
 
@@ -233,6 +248,16 @@ curl -X POST http://localhost:8000/invoke \
   -H "session_id: test" \
   -d '{"prompt": "你好"}'
 ```
+
+---
+
+## ⚠️ 已知限制
+
+| 问题 | 说明 | 解决方案 |
+|------|------|----------|
+| SSL 证书错误 | macOS Python 常见问题 | 使用国内镜像或配置 certifi |
+| Semantic Scholar 429 | API 速率限制 | 配置 API Key 或等待重试 |
+| `/docs` 端点不可用 | AgentKit 与 Pydantic 兼容性 | 不影响核心功能 |
 
 ---
 
